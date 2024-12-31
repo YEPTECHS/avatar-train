@@ -1,0 +1,9 @@
+learning_rate: 5e-5
+scale_lr: false
+lr_scheduler: "cosine"
+lr_warmup_steps: 0
+adam_beta1: 0.9
+adam_beta2: 0.999
+adam_weight_decay: 1e-2
+adam_epsilon: 1e-8
+max_grad_norm: 1.0
