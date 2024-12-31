@@ -42,9 +42,13 @@ class MusetalkTrainDataset(Dataset):
         # Load original data
         original_metadata = download_and_load_npz(config.data.metadata_url)[validation_size:]
         
-        # Repeat data 100 times
-        self.dataset_metadata = np.tile(original_metadata, 100)
-        logger.info(f"Dataset metadata repeated 100 times, total videos: {len(self.dataset_metadata)}")
+        # Conditionally repeat data
+        if len(original_metadata) <= 20:
+            self.dataset_metadata = np.tile(original_metadata, 100)
+            logger.info(f"Dataset metadata repeated 100 times, total videos: {len(self.dataset_metadata)}")
+        else:
+            self.dataset_metadata = original_metadata
+            logger.info(f"Dataset metadata used as-is, total videos: {len(self.dataset_metadata)}")
         
         # Create mapping
         self.dataset_mapping = {}
