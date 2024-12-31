@@ -27,7 +27,7 @@ configuration files in `configuration/` directory
 
 ## Run
 
-1.  Make sure you have installed `uv`
+1.  Make sure you have installed `uv` and run `uv sync --all-extras` in the root directory of the project
 
 2.  Run `uv run python3 train.py` in the root directory of the project
 
