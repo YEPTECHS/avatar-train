@@ -8,10 +8,9 @@ sys.path.append("..")
 
 class Audio2Feature():
     def __init__(self, 
-                 whisper_model_type="tiny",
-                 model_path="./models/whisper/tiny.pt"):
+                 whisper_model_type="tiny"):
         self.whisper_model_type = whisper_model_type
-        self.model = load_model(model_path) #
+        self.model = load_model(whisper_model_type) #
 
     def get_sliced_feature(self,
                            feature_array, 

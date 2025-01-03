@@ -3,20 +3,19 @@ from pathlib import Path
 import numpy as np
 from tqdm import tqdm
 
-from submodules.whisper.audio2feature import Audio2Feature
+from .submodules.whisper.audio2feature import Audio2Feature
 
 
 class AudioFeatureExtractor:
-    def __init__(self, model_path, data, output_path):
+    def __init__(self, data, output_path):
         '''
         Args:
-            model_path: Path to the whisper model, should be tiny.pt as default
             data: List of audio paths
             output_path: Path to the output directory
         '''
         self.data = data
         self.output_path: Path = Path(output_path)
-        self.model = Audio2Feature(model_path=model_path)
+        self.model = Audio2Feature()
 
     def run(self):
         for audio_path in tqdm(self.data):

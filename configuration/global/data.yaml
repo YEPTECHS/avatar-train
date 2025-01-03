@@ -1,7 +1,8 @@
-s3_data_base_url: "https://digital-human-llm.s3.ap-southeast-2.amazonaws.com/dev/train-data/"
-local_data_base_url: "/home/ubuntu/scratch4/david/tony/output"
+# s3_data_base_url: "https://digital-human-llm.s3.ap-southeast-2.amazonaws.com/dev/train-data/"
+local_data_base_url: "/home/ubuntu/scratch4/kuizong/avatar-train/dataset/processed"
 metadata_url: "https://digital-human-llm.s3.ap-southeast-2.amazonaws.com/dev/train-data/metadata_tony.npz"
-output_dir: output_root/finetune-tony-ok
+output_dir: output/tony_2
 image_folder_name: aligned_with_bg
 audio_folder_name: audio
 IMAGE_SIZE: 256
+validation_size: 1

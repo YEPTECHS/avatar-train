@@ -3,7 +3,7 @@ mixed_precision: "fp16"
 wandb_enabled: true
 gradient_checkpointing: true
 max_train_steps: 5000
-validation_steps: 100
+validation_steps: 300
 checkpoints_total_limit: 1000
 train_batch_size: 12
 audio_length_left: 2

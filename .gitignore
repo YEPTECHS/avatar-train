@@ -9,6 +9,7 @@ __pycache__/
 # Cache
 wandb/
 .ruff_cache/
+temp_frames/
 
 # Output Files
 output/
@@ -16,13 +17,14 @@ output_root/
 
 # Models
 pretrained/
+checkpoints/
 
 # Logs
 logs/
 
 # Dataset
 test-dataset/
-
+dataset/
 # Distribution / packaging
 .Python
 build/

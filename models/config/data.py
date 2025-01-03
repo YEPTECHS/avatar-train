@@ -11,6 +11,7 @@ class DataConfig(BaseModel):
     metadata_url: str
     output_dir: str
     IMAGE_SIZE: int = 256
+    validation_size: int = 10
 
     @classmethod
     def from_yaml(cls, yaml_path: str) -> "DataConfig":

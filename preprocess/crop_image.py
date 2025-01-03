@@ -6,9 +6,11 @@ from datetime import datetime
 from pathlib import Path
 from torch.utils.data import Dataset
 from typing import List
-from loguru import logger
+from logging import getLogger
 from rich.progress import Progress, BarColumn, TimeElapsedColumn, TimeRemainingColumn, TextColumn
 from rich.console import Console
+
+logger = getLogger(__name__)
 
 
 class CropDataset(Dataset):
@@ -142,10 +144,10 @@ def crop_data(image, image_path, lmk, bbox, data_root) -> None:
     x2 = max(0, int(x2))
     y2 = max(0, int(y2))
 
-    y1 = y1 - 20
-    y2 = y2 + 20
-    x1 = x1 - 20
-    x2 = x2 + 20
+    y1 = y1 - 10
+    y2 = y2 + 10
+    x1 = x1 - 10
+    x2 = x2 + 10
 
     if ((y2 - y1) <= 0) or ((x2 - x1) <= 0):
         logger.warning(f"Image Bbox out bound {str(image_path)}")
@@ -164,10 +166,16 @@ def crop_data(image, image_path, lmk, bbox, data_root) -> None:
 
 # Example usage
 if __name__ == "__main__":
+    import argparse
+    import os
     from torch.utils.data import DataLoader
 
-    # Configure path
-    data_root = Path('/home/ubuntu/scratch4/david/tony/output')  # Replace with your source directory path
+    parser = argparse.ArgumentParser(description='Crop and align faces from images')
+    parser.add_argument('--data_root', type=str, required=True,
+                       help='Root directory containing frame and landmarks subdirectories')
+    args = parser.parse_args()
+
+    data_root = Path(args.data_root)
 
     # Create dataset instance
     dataset = CropDataset(
@@ -178,7 +186,7 @@ if __name__ == "__main__":
         dataset,
         batch_size=1,  # Process each image independently
         shuffle=False,
-        num_workers=8,  # Adjust based on CPU cores
+        num_workers=os.cpu_count(),  # Adjust based on CPU cores
         pin_memory=True,  # Enable if using GPU
         prefetch_factor=2,  # Improve prefetch efficiency
         persistent_workers=True  # Keep worker processes alive

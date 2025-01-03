@@ -1,18 +1,16 @@
 import os
 import argparse
 
-from .audio_feature_extractor import AudioFeatureExtractor
-from .background_matter import BackgroundMatter
-from .segment import VideoDataset, AudioSplit, Segment
+from preprocess.audio_feature_extractor import AudioFeatureExtractor
+from preprocess.background_matter import BackgroundMatter
+from preprocess.segment import VideoDataset, AudioSplit, Segment
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Video preprocessing pipeline')
     parser.add_argument('--data_path', type=str, 
-                      default='/home/ubuntu/scratch4/david/tony',
                       help='Input data directory path')
     parser.add_argument('--output_path', type=str,
-                      default='/home/ubuntu/scratch4/david/tony/output',
                       help='Output directory path')
     
     args = parser.parse_args()
@@ -38,7 +36,7 @@ if __name__ == '__main__':
     audio_extracter.run()
 
     # Extract audio features
-    audio_feature = AudioFeatureExtractor(dataset, output_path)
+    audio_feature = AudioFeatureExtractor(data=dataset, output_path=output_path)
     audio_feature.run()
 
     # Used to remove background
