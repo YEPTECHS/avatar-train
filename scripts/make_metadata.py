@@ -75,9 +75,11 @@ def main():
     parser = argparse.ArgumentParser(description='Generate metadata.npz file')
     parser.add_argument('--mode', choices=['scan', 'json'], required=True,
                       help='Mode: scan directory or convert from JSON')
-    parser.add_argument('--image-dir', required=True,
+    parser.add_argument('--input', required=False,
+                      help='Input path for images or JSON file')
+    parser.add_argument('--image-dir', required=False,
                       help='Input directory path for images')
-    parser.add_argument('--audio-dir', required=True,
+    parser.add_argument('--audio-dir', required=False,
                       help='Input directory path for audio .npy files')
     parser.add_argument('--output', default='metadata.npz',
                       help='Output path for metadata.npz (default: metadata.npz)')

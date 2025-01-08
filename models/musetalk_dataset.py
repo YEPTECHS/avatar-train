@@ -40,7 +40,10 @@ class MusetalkTrainDataset(Dataset):
         # self.dataset_metadata: np.ndarray = download_and_load_npz(config.data.metadata_url)[validation_size:]
 
         # Load original data
-        original_metadata = download_and_load_npz(config.data.metadata_url)[:validation_size]
+        if validation_size == 0:
+            original_metadata = download_and_load_npz(config.data.metadata_url)
+        else:
+            original_metadata = download_and_load_npz(config.data.metadata_url)[:validation_size]
         
         # Conditionally repeat data
         if len(original_metadata) <= 20:

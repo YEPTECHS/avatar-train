@@ -17,7 +17,7 @@ There are two ways to prepare the data:
 
 The data paths and settings can be configured in `configuration/global/data.yaml`:
 ```yaml
-s3_data_base_url: "https://digital-human-llm.s3.ap-southeast-2.amazonaws.com/dev/train-data/"
+s3_data_base_url: "https://digital-human-llm.s3.ap-southeast-2.amazonaws.com/dev/train-data/" (Optional)
 local_data_base_url: "/path/to/your/local/data"
 metadata_url: "https://digital-human-llm.s3.ap-southeast-2.amazonaws.com/dev/train-data/metadata.npz"
 output_dir: "output_root/your-experiment-name"
@@ -58,11 +58,14 @@ The metadata file (`metadata.npz`) contains information about the dataset struct
    - Use `scripts/make_metadata.py` to create metadata from your local data:
      ```bash
      # Generate from local directory
-     python scripts/make_metadata.py --mode scan --input /path/to/aligned-frames --output metadata.npz
+     python scripts/make_metadata.py --mode scan --image-dir /path/to/aligned-frames --audio-dir /path/to/audio --output metadata.npz
      
      # Or convert from existing JSON
      python scripts/make_metadata.py --mode json --input metadata.json --output metadata.npz
      ```
+3. **WARNING**
+   - Currently metadata can only be loaded from remote url!
+
 
 **Metadata Format:**
 ```json
@@ -125,7 +128,7 @@ max_grad_norm: 1.0       # Maximum gradient norm for clipping
 1. Environment Setup
    ```bash
    # Install uv package manager
-   curl -LsSf https://astral.sh/uv/install.sh | sh
+   pip install uv
 
    # Install dependencies
    uv sync --all-extras

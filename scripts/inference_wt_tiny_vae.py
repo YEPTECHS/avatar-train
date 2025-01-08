@@ -466,7 +466,7 @@ if __name__ == "__main__":
     model.process_image_sequence(
         input_dir="/home/ubuntu/scratch4/kuizong/avatar-train/dataset/processed/aligned_with_bg/tony",
         output_path="/home/ubuntu/scratch4/kuizong/avatar-train/output_finetune_tiny_new_loss_tony.mp4",
-        #audio_features_dir="/home/ubuntu/scratch4/kuizong/avatar-train/dataset/processed/audio/tony_val",
+        audio_features_dir="/home/ubuntu/scratch4/kuizong/avatar-train/dataset/processed/audio/tony_val",
         start_frame=0,
-        end_frame=600
+        end_frame=200
     )

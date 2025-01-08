@@ -33,6 +33,7 @@ class TrainConfig(BaseModel):
     train_batch_size: int = Field(default=8, description="Training batch size")
     audio_length_left: int = Field(default=2, description="Left context length")
     audio_length_right: int = Field(default=2, description="Right context length")
+    finetune: bool = Field(default=False, description="Finetune the model")
 
     @classmethod
     def from_yaml(cls, yaml_path: str) -> "TrainConfig":

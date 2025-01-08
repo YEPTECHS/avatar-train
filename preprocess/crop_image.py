@@ -131,29 +131,51 @@ class CropDataset(Dataset):
         return [image, str(image_path), lmk, bbox]
 
 
+def get_crop_box(box, expand=1.2):
+    x, y, x1, y1 = map(int, box)
+    x_c, y_c = (x+x1)//2, (y+y1)//2
+    w, h = x1-x, y1-y
+    s = int(max(w, h)//2*expand)
+    crop_box = [x_c-s, y_c-s, x_c+s, y_c+s]
+    return crop_box, s
+
+
 def crop_data(image, image_path, lmk, bbox, data_root) -> None:
     global logger
-    # check if the image exist
     if image is None:
         logger.error(f"Image is None {str(image_path)}")
         return
 
-    x1, y1, x2, y2, _ = bbox[0]
-    x1 = max(0, int(x1))
-    y1 = max(0, int(y1))
-    x2 = max(0, int(x2))
-    y2 = max(0, int(y2))
-
-    y1 = y1 - 10
-    y2 = y2 + 10
-    x1 = x1 - 10
-    x2 = x2 + 10
-
-    if ((y2 - y1) <= 0) or ((x2 - x1) <= 0):
-        logger.warning(f"Image Bbox out bound {str(image_path)}")
+    # Check if the bbox is a placeholder
+    coord_placeholder = (0.0, 0.0, 0.0, 0.0)
+    if np.allclose(bbox[0][:4], coord_placeholder):
+        logger.warning(f"Placeholder bbox found for {str(image_path)}")
         return
-    crop_frame = image[y1:y2, x1:x2]
-    crop_frame = cv2.resize(crop_frame, (256, 256), interpolation=cv2.INTER_LANCZOS4)
+
+    # Ensure the bbox coordinates are integers
+    x1, y1, x2, y2 = map(int, bbox[0][:4])
+    
+    # Check if the bbox is valid
+    if y2-y1 <= 0 or x2-x1 <= 0 or x1 < 0:
+        logger.warning(f"Invalid bbox dimensions for {str(image_path)}")
+        return
+
+    # Get the expanded crop box
+    crop_box, s = get_crop_box((x1, y1, x2, y2))
+    x_s, y_s, x_e, y_e = map(int, crop_box)
+
+    # Ensure the crop box is within the image boundaries
+    h, w = image.shape[:2]
+    x_s = max(0, x_s)
+    y_s = max(0, y_s)
+    x_e = min(w, x_e)
+    y_e = min(h, y_e)
+
+    # Crop and resize
+    crop_frame = image[y_s:y_e, x_s:x_e]
+    resized_crop_frame = cv2.resize(crop_frame, (256, 256), interpolation=cv2.INTER_LANCZOS4)
+    
+    # Save path processing
     image_path = Path(image_path)
     video_name = image_path.parent.name
     frame_index = image_path.stem
@@ -161,7 +183,7 @@ def crop_data(image, image_path, lmk, bbox, data_root) -> None:
     save_path = Path(data_root) / "aligned_with_bg" / str(video_name)
     save_path.mkdir(parents=True, exist_ok=True)
     save_path = save_path / f"{frame_index}.png"
-    cv2.imwrite(str(save_path), crop_frame)
+    cv2.imwrite(str(save_path), resized_crop_frame)
 
 
 # Example usage
