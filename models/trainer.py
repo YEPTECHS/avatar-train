@@ -562,7 +562,6 @@ class Trainer:
                 # Load .bin format (just model weights)
                 state_dict = torch.load(checkpoint_path, map_location="cpu")
                 unwrapped_unet = self.accelerator.unwrap_model(self.unet)
-                # Add strict parameter checking
                 missing_keys, unexpected_keys = unwrapped_unet.load_state_dict(
                     state_dict, strict=False
                 )
@@ -573,7 +572,7 @@ class Trainer:
                 logger.info("Successfully loaded .bin checkpoint (model weights only)")
                 
             elif checkpoint_path.endswith('.pth'):
-                # Load .pth format (full checkpoint state)
+                # Load .pth format
                 checkpoint = torch.load(checkpoint_path, map_location="cpu")
                 
                 # Load model weights with strict checking
@@ -586,48 +585,69 @@ class Trainer:
                 if unexpected_keys:
                     logger.warning(f"Unexpected keys in checkpoint: {unexpected_keys}")
                 
-                # Load optimizer state if available
-                if "optimizer_state_dict" in checkpoint:
-                    try:
-                        self.optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
-                        logger.info("Successfully loaded optimizer state")
-                    except Exception as e:
-                        logger.warning(f"Failed to load optimizer state: {str(e)}")
-                    
-                # Load scheduler state if available    
-                if "scheduler_state_dict" in checkpoint:
-                    try:
-                        self.lr_scheduler.load_state_dict(checkpoint["scheduler_state_dict"])
-                        logger.info("Successfully loaded scheduler state")
-                    except Exception as e:
-                        logger.warning(f"Failed to load scheduler state: {str(e)}")
-                    
-                # Get training state
-                start_epoch = checkpoint.get("epoch", 0)
-                global_step = checkpoint.get("step", 0)
+                # Only load optimizer/scheduler state if not in finetune mode
+                if not config.train.finetune:
+                    if "optimizer_state_dict" in checkpoint:
+                        try:
+                            self.optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
+                            logger.info("Successfully loaded optimizer state")
+                        except Exception as e:
+                            logger.warning(f"Failed to load optimizer state: {str(e)}")
+                        
+                    if "scheduler_state_dict" in checkpoint:
+                        try:
+                            self.lr_scheduler.load_state_dict(checkpoint["scheduler_state_dict"])
+                            logger.info("Successfully loaded scheduler state")
+                        except Exception as e:
+                            logger.warning(f"Failed to load scheduler state: {str(e)}")
+                            
+                    # Get training state
+                    start_epoch = checkpoint.get("epoch", 0)
+                    global_step = checkpoint.get("step", 0)
+                else:
+                    logger.info("Finetune mode: Only loaded model weights, training will start from epoch 0")
                 
-                logger.info(f"Successfully loaded .pth checkpoint - Epoch: {start_epoch}, Step: {global_step}")
+                logger.info(f"Successfully loaded .pth checkpoint")
                 
             elif os.path.isdir(checkpoint_path):
-                # Ensure all components are prepared before loading accelerator state
+                # Prepare components for accelerator state
                 self.unet, self.optimizer, _, _, self.lr_scheduler = self.accelerator.prepare(
                     self.unet, self.optimizer, None, None, self.lr_scheduler
                 )
                 
-                # Load accelerator state
-                self.accelerator.load_state(checkpoint_path)
-                logger.info(f"Successfully loaded accelerator state from {checkpoint_path}")
-                
-                # Try to extract epoch and step from folder name
-                folder_name = os.path.basename(checkpoint_path)
-                if folder_name.startswith("accelerator-epoch"):
+                if not config.train.finetune:
+                    # Load full accelerator state
+                    self.accelerator.load_state(checkpoint_path)
+                    logger.info(f"Successfully loaded accelerator state from {checkpoint_path}")
+                    
+                    # Try to extract epoch and step from folder name
+                    folder_name = os.path.basename(checkpoint_path)
+                    if folder_name.startswith("accelerator-epoch"):
+                        try:
+                            parts = folder_name.split("-")
+                            start_epoch = int(parts[1].replace("epoch", ""))
+                            global_step = int(parts[2].replace("step", ""))
+                        except:
+                            logger.warning("Could not parse epoch and step from folder name")
+                else:
+                    # In finetune mode, only load model weights from accelerator state
                     try:
-                        parts = folder_name.split("-")
-                        start_epoch = int(parts[1].replace("epoch", ""))
-                        global_step = int(parts[2].replace("step", ""))
-                        logger.info(f"Resuming from epoch {start_epoch}, step {global_step}")
-                    except:
-                        logger.warning("Could not parse epoch and step from folder name")
+                        from safetensors.torch import load_file
+                        model_path = os.path.join(checkpoint_path, "model.safetensors")
+                        if os.path.exists(model_path):
+                            accelerator_state = load_file(model_path)
+                        else:
+                            # Fallback to .bin if safetensors not found
+                            raise ValueError("Safetensors not found")
+                        
+                        unwrapped_unet = self.accelerator.unwrap_model(self.unet)
+                        missing_keys, unexpected_keys = unwrapped_unet.load_state_dict(
+                            accelerator_state, strict=False
+                        )
+                        logger.info(f"Successfully loaded model weights from {model_path}")
+                    except Exception as e:
+                        logger.error(f"Failed to load model weights: {str(e)}")
+                        raise
                 
                 # Validate model state
                 self.unet.eval()

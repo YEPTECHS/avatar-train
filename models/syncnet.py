@@ -52,6 +52,25 @@ class SyncNet_color(nn.Module):
             Conv2d(256, 512, kernel_size=3, stride=1, padding=0),
             Conv2d(512, 512, kernel_size=1, stride=1, padding=0),)
 
+    def get_loss(self, audio_sequences, face_sequences, y):
+        """Calculate loss between audio and face sequences
+        
+        Args:
+            audio_sequences: Input audio sequences
+            face_sequences: Input face sequences
+            y: Target labels (1 for matching pairs, 0 for non-matching)
+            
+        Returns:
+            loss: BCE loss between cosine similarity and target labels
+        """
+        # Get embeddings through forward pass
+        audio_embedding, face_embedding = self.forward(audio_sequences, face_sequences)
+        
+        # Calculate cosine similarity and loss
+        d = F.cosine_similarity(audio_embedding, face_embedding)
+        loss = F.binary_cross_entropy_with_logits(d.unsqueeze(1), y)
+        return loss
+
     def forward(self, audio_sequences, face_sequences): # audio_sequences := (B, dim, T)
         face_embedding = self.face_encoder(face_sequences)
         audio_embedding = self.audio_encoder(audio_sequences)

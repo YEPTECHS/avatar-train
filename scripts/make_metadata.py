@@ -1,33 +1,38 @@
 import os
 import json
 import numpy as np
-from pathlib import Path
 import argparse
 
-def generate_metadata(image_root_dir: str, output_path: str):
-    """Generate metadata.npz from a directory of images
+def generate_metadata(image_root_dir: str, audio_root_dir: str, output_path: str):
+    """Generate metadata.npz from directories of images and audio files
     
     Args:
         image_root_dir (str): Root directory containing HDTF-* folders with images
+        audio_root_dir (str): Root directory containing HDTF-* folders with audio .npy files
         output_path (str): Path to save the metadata.npz file
     """
     folder_data = []
     
-    # Walk through all HDTF-* directories
     for folder_name in sorted(os.listdir(image_root_dir)):
-        if not folder_name.startswith('HDTF'):
+        image_folder_path = os.path.join(image_root_dir, folder_name)
+        audio_folder_path = os.path.join(audio_root_dir, folder_name)
+        
+        if not os.path.isdir(image_folder_path):
             continue
             
-        folder_path = os.path.join(image_root_dir, folder_name)
-        if not os.path.isdir(folder_path):
+        # Check if corresponding audio folder exists
+        if not os.path.isdir(audio_folder_path):
             continue
             
         # Get all image names without extension and sort them
         image_names = []
-        for img_file in os.listdir(folder_path):
+        for img_file in os.listdir(image_folder_path):
             if img_file.endswith(('.png', '.jpg', '.jpeg')):
                 image_name = os.path.splitext(img_file)[0]
-                image_names.append(image_name)
+                # Check if corresponding .npy file exists
+                npy_path = os.path.join(audio_folder_path, f"{image_name}.npy")
+                if os.path.exists(npy_path):
+                    image_names.append(image_name)
         
         image_names.sort()
         
@@ -70,15 +75,19 @@ def main():
     parser = argparse.ArgumentParser(description='Generate metadata.npz file')
     parser.add_argument('--mode', choices=['scan', 'json'], required=True,
                       help='Mode: scan directory or convert from JSON')
-    parser.add_argument('--input', required=True,
-                      help='Input directory path (for scan mode) or JSON file path (for json mode)')
+    parser.add_argument('--input', required=False,
+                      help='Input path for images or JSON file')
+    parser.add_argument('--image-dir', required=False,
+                      help='Input directory path for images')
+    parser.add_argument('--audio-dir', required=False,
+                      help='Input directory path for audio .npy files')
     parser.add_argument('--output', default='metadata.npz',
                       help='Output path for metadata.npz (default: metadata.npz)')
     
     args = parser.parse_args()
     
     if args.mode == 'scan':
-        generate_metadata(args.input, args.output)
+        generate_metadata(args.image_dir, args.audio_dir, args.output)
     else:  # json mode
         load_from_json(args.input, args.output)
 

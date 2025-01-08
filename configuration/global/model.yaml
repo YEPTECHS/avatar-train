@@ -1,3 +1,3 @@
 unet_config_file: "configuration/unet/config.json"
 vae_pretrained_model_name_or_path: "madebyollin/taesd"
-resume_from_checkpoint: "/home/ubuntu/scratch4/kuizong/Avatar-Train/output_root/finetune/base-5000/checkpoints/accelerator-epoch2999-step3000"
+resume_from_checkpoint: "/home/ubuntu/scratch4/kuizong/avatar-train/checkpoints/unet/accelerator-epoch2999-step3000"

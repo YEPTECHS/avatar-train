@@ -221,7 +221,6 @@ class VideoUNetInference:
                             feat = np.load(feature_path)
                             if feature_shape is None:
                                 feature_shape = feat.shape
-                                print(feature_shape)
                             audio_features.append(feat)
                         except Exception as e:
                             # If feature not found, use zeros
@@ -459,16 +458,15 @@ class VideoUNetInference:
 # Usage example:
 if __name__ == "__main__":
     model = VideoUNetInference(
-        unet_path="/home/ubuntu/scratch4/kuizong/Avatar-Train/pretrained/finetune_tiny_new_loss",
+        unet_path="/home/ubuntu/scratch4/kuizong/avatar-train/pretrained",
         vae_path="madebyollin/taesd"
     )
     
     # Process video
     model.process_image_sequence(
-        input_dir="/home/ubuntu/scratch4/david2/gen/temp_frames",
-        # input_dir="/home/ubuntu/scratch4/david/output/aligned_with_bg/HDTF_0001",
-        output_path="/home/ubuntu/scratch4/kuizong/Avatar-Train/output_finetune_tiny_new_loss_tony.mp4",
-        # audio_features_dir="/home/ubuntu/scratch4/david/output/audio/HDTF_0009",
+        input_dir="/home/ubuntu/scratch4/kuizong/avatar-train/dataset/processed/aligned_with_bg/tony",
+        output_path="/home/ubuntu/scratch4/kuizong/avatar-train/output_finetune_tiny_new_loss_tony.mp4",
+        audio_features_dir="/home/ubuntu/scratch4/kuizong/avatar-train/dataset/processed/audio/tony_val",
         start_frame=0,
-        end_frame=100
+        end_frame=200
     )

@@ -40,12 +40,16 @@ def main():
     logger.info("successfully initialized trainer")
     
     # 3. Setup wandb
-    setup_wandb()
+    if config.train.wandb_enabled:
+        if os.getenv("WANDB_KEY") is not None:
+            setup_wandb()
+        else:
+            logger.warning("WANDB_KEY is not set, wandb is not enabled")
     
     # 4. Train
     logger.info("start training")
     trainer.train(
-        validation_size=0,
+        validation_size=config.data.validation_size,
         resume_from_checkpoint=config.model.resume_from_checkpoint
     )
 

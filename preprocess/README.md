@@ -57,16 +57,16 @@ cd preprocess
 Run the preprocessing script with your data path and output path:
 
 ```bash
-python run.py --data_path /path/to/your/input/data --output_path /path/to/output/directory
+python run.py --data_path /path/to/your/input/directory/data_root --output_path /path/to/output/directory/output_root
 ```
 
-Replace `/path/to/your/input/data` with the directory containing your input videos and `/path/to/output/directory` with where you want the processed data to be saved.
+Replace `/path/to/your/input/directory/data_root` with the directory containing your input videos and `/path/to/output/directory/output_root` with where you want the processed data to be saved.
 
 ### 3. Run Image Cropping
 After running the preprocessing pipeline, run the image cropping script to create aligned face images:
 
 ```bash
-python crop_image.py
+python crop_image.py --data_root /path/to/output/directory/output_root
 ```
 
 This script will:
@@ -75,7 +75,7 @@ This script will:
 - Create aligned face images in the `aligned_with_bg` directory
 - Resize all cropped images to 256x256 pixels
 
-Make sure to check the `data_root` path in `crop_image.py` matches your output directory from step 2.
+Make sure to check the `output_root` path in `crop_image.py` matches your output directory from step 2.
 
 ## Pipeline Steps
 
